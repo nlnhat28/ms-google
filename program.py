@@ -26,7 +26,7 @@ dict_replace = {}
 page_id = ''
 cookie = {}
 access_token = ''
-timesleep = 10
+timesleep = 18
 
 url_comment = ''
 params_comment = {}
@@ -81,14 +81,14 @@ def get_video_id():
     url = f'https://graph.facebook.com/v16.0/{page_id}/live_videos?'
     params = {
         "access_token": access_token,
-        "fields": "creation_time,permalink_url",
+        "fields": "creation_time,id",
         "order": "reverse_chronological",
         "limit": 1
     }
     response = requests.get(url, params=params, cookies=cookie)
     data = json.loads(response.content.decode('utf-8'))
     if data.get('data'):
-        video_id = data['data'][0]['permalink_url'].split('videos/')[1] 
+        video_id = data['data'][0]['id']
         url_comment = f"https://graph.facebook.com/v16.0/{video_id}/comments?"
         params_comment = {
             "access_token": access_token,
@@ -132,10 +132,10 @@ def create_image(image, text1, text2):
     text2_position = (image.width + 16, new_height // 2 )
 
     with Pilmoji(new_image) as pilmoji:
-            pilmoji.text(text2_position, text2, font=FONT_2, fill=(255, 255, 255, 255), emoji_position_offset=(0,8))
-            pilmoji.text(text1_position, text1, font=FONT_1, fill=(255, 215, 0, 255), emoji_position_offset=(0,6))
+        pilmoji.text(text2_position, text2, font=FONT_2, fill=(255, 255, 255, 255), emoji_position_offset=(0,8))
+        pilmoji.text(text1_position, text1, font=FONT_1, fill=(255, 215, 0, 255), emoji_position_offset=(0,6))
 
-    new_image = ImageOps.expand(new_image, border=(7, 0, 0, 0), fill=(255, 100, 0))
+    new_image = ImageOps.expand(new_image, border=(6, 0, 0, 0), fill=(255, 100, 0))
 
     new_image.save(PICTURE_PATH, format='PNG')
 
