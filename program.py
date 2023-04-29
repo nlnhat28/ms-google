@@ -7,6 +7,7 @@ import playsound
 import os
 import urllib
 from PIL import Image, ImageDraw, ImageFont, ImageOps
+from pilmoji import Pilmoji
 
 # Constant =======================================================================================================
 FONT_1 = ImageFont.truetype("fonts/UTM HelvetIns.ttf", size = 34) 
@@ -14,8 +15,8 @@ FONT_2 = ImageFont.truetype("fonts/UTM HelvetIns.ttf", size = 30)
 START_COLOR = (0, 0, 0, 200) # Black with 50% transparency
 END_COLOR = (0, 0, 0, 0) # Black with 0% transparency
 
-REPLACE_PATH = "replace.json"
-CONFIG_PATH = "config.json"
+REPLACE_PATH = "replace copy.json"
+CONFIG_PATH = "config copy.json"
 AUDIO_PATH = "read.mp3"
 PICTURE_PATH = "picture.png"
 LOG_PATH = "log.txt"
@@ -128,10 +129,11 @@ def create_image(image, text1, text2):
     new_image.paste(image, (8, 8))
 
     text1_position = (image.width + 16, 0)
-    text2_position = (image.width + 16, new_height // 2 + -2)
+    text2_position = (image.width + 16, new_height // 2 )
 
-    draw.text(text1_position, text1, font=FONT_1, fill=(255, 215, 0, 255))
-    draw.text(text2_position, text2, font=FONT_2, fill=(255, 255, 255, 255))
+    with Pilmoji(new_image) as pilmoji:
+            pilmoji.text(text2_position, text2, font=FONT_2, fill=(255, 255, 255, 255), emoji_position_offset=(0,8))
+            pilmoji.text(text1_position, text1, font=FONT_1, fill=(255, 215, 0, 255), emoji_position_offset=(0,6))
 
     new_image = ImageOps.expand(new_image, border=(7, 0, 0, 0), fill=(255, 100, 0))
 
