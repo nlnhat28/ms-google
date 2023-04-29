@@ -1,11 +1,11 @@
-from io import BytesIO
 import requests
 import time
 import json
+import os
 from gtts import gTTS
 import playsound
-import os
 import urllib
+from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 from pilmoji import Pilmoji
 
@@ -173,7 +173,7 @@ def read_comment_loop():
                     show_image = Image.open(BytesIO(image_data))                                   
                     create_image(show_image, show_name, show_comment)
 
-                    audio_gtts = gTTS(gtts_read, lang="vi", slow=False)
+                    audio_gtts = gTTS(gtts_read, lang="vi", slow=False,)
                     audio_gtts.save(AUDIO_PATH)
                     playsound.playsound(AUDIO_PATH, block = True)
                     time.sleep(8)
