@@ -15,8 +15,8 @@ FONT_2 = ImageFont.truetype("fonts/UTM HelvetIns.ttf", size = 30)
 START_COLOR = (0, 0, 0, 200) # Black with 50% transparency
 END_COLOR = (0, 0, 0, 0) # Black with 0% transparency
 
-REPLACE_PATH = "replace copy.json"
-CONFIG_PATH = "config copy.json"
+REPLACE_PATH = "replace.json"
+CONFIG_PATH = "config.json"
 AUDIO_PATH = "read.mp3"
 PICTURE_PATH = "picture.png"
 LOG_PATH = "log.txt"
