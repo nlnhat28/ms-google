@@ -69,9 +69,12 @@ def load_file():
         page_id = config.get('page_id')
         cookie = format_cookie(config.get('cookie'))
         time_sleep = config.get('time_sleep') - 8
+        print(f'page_id: {page_id}')
     with open(APIFPT_PATH, 'r', encoding='utf-8') as f:
         api_fpt = json.load(f)
 
+    with open(LOG_PATH, 'w', encoding='utf-8') as f:
+        f.write('')
 # Get access_token
 def get_substring_between(string, start, end):
     start_index = string.find(start)
@@ -112,9 +115,9 @@ def get_video_id():
             "order": "reverse_chronological",
             "limit": 1
         }
+        print(f'video_id: {video_id}')
     else:
-        print("Not found video")
-        raise Exception
+        input("Not found video")
     
 # Trim message
 def trim_message(message):
@@ -202,7 +205,6 @@ def tts_fpt(text):
         }
         response_tts = requests.request('POST', URL_FPT, data=payload.encode('utf-8'), headers=headers)
         data_tts = json.loads(response_tts.content.decode('utf-8'))
-        print(data_tts)
         if 'async' in data_tts:
             async_url = data_tts['async']
             try_count = 1
@@ -271,6 +273,7 @@ def start():
 
     time.sleep(1)
     playsound.playsound(AUDIO_PATH, block = True)
+    print('Running ...')
 
     time.sleep(8)
     os.remove(AUDIO_PATH)
