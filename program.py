@@ -315,7 +315,7 @@ def read_comment_loop():
                     read_message = replace_emojis(read_message) 
                     read_message = add_greeting(read_message, first_name, gender)
 
-                    read_content = f"{name}. {read_message}" 
+                    read_content = f"{name}. {read_message[:80]}" 
 
                     show_name = f"{name}"
                     show_comment = cut_message
