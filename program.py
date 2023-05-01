@@ -1,3 +1,4 @@
+import sys
 import requests
 import time
 import json
@@ -119,6 +120,7 @@ def get_video_id():
         print(f'live_video: {video_title}')
     else:
         input("Not found video")
+        sys.exit()
     
 # Trim message
 def trim_message(message):
@@ -305,9 +307,6 @@ def read_comment_loop():
                     picture_url = latest_comment["from"]["picture"]["data"]["url"]
                     message = message.strip().replace('\n',' ')
 
-                    with open(LOG_PATH, 'a', encoding='utf-8') as f:
-                        f.write(f"{name}: {message}\n")
-
                     cut_message = trim_message(message)   
 
                     read_message = remove_char(cut_message)
@@ -330,6 +329,10 @@ def read_comment_loop():
 
                     time.sleep(1)
                     playsound.playsound(AUDIO_PATH, block = True)
+
+                    with open(LOG_PATH, 'a', encoding='utf-8') as f:
+                        f.write(f"{name}: {message}\n")
+                    print(f"{name}: {message}")
 
                     time.sleep(8)
                     os.remove(AUDIO_PATH)
