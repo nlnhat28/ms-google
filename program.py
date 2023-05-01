@@ -344,9 +344,12 @@ def read_comment_loop():
         finally: time.sleep(time_sleep)
 
 # Main =========================================================================================================
-load_file()
-get_access_token()
-get_video_id()
-start()
-read_comment_loop()
+def main():
+    load_file()
+    get_access_token()
+    get_video_id()
+    start()
+    read_comment_loop()
 
+if __name__ == "__main__":
+    main()
