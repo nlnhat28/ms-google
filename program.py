@@ -210,7 +210,7 @@ def tts_fpt(text):
         data_tts = json.loads(response_tts.content.decode('utf-8'))
         if 'async' in data_tts:
             async_url = data_tts['async']
-            try_count = 1
+            try_count = 0
             while True:
                 time.sleep(2)
                 response_audio = requests.get(async_url)
@@ -221,7 +221,7 @@ def tts_fpt(text):
                     break
                 else:
                     try_count += 1
-                    if try_count > 5:
+                    if try_count > 1:
                         raise Exception
             break
 
