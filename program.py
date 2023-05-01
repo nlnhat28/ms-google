@@ -100,7 +100,7 @@ def get_video_id():
     url = f'https://graph.facebook.com/v16.0/{page_id}/live_videos?'
     params = {
         "access_token": access_token,
-        "fields": "creation_time,id",
+        "fields": "creation_time,id, title",
         "order": "reverse_chronological",
         "limit": 1
     }
@@ -108,6 +108,7 @@ def get_video_id():
     json_data = json.loads(response.content.decode('utf-8'))
     if json_data.get('data'):
         video_id = json_data['data'][0]['id']
+        video_title = json_data['data'][0]['title']
         url_comment = f"https://graph.facebook.com/v16.0/{video_id}/comments?"
         params_comment = {
             "access_token": access_token,
@@ -115,7 +116,7 @@ def get_video_id():
             "order": "reverse_chronological",
             "limit": 1
         }
-        print(f'video_id: {video_id}')
+        print(f'live_video: {video_title}')
     else:
         input("Not found video")
     
@@ -262,6 +263,7 @@ def create_image(image, text1, text2):
 
 # Start read
 def start():
+    print('Started')
     try:
         image = Image.open(IMAGE_START_PATH)
     except:
