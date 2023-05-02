@@ -125,8 +125,8 @@ def get_video_id():
 # Trim message
 def trim_message(message):
     try:
-        if len(message) > 60:
-            message = message[:60]
+        if len(message) > 80:
+            message = message[:80]
             end_space_index = message.rfind(' ')
             message = message[:end_space_index]
         return message
@@ -210,19 +210,14 @@ def tts_fpt(text):
         data_tts = json.loads(response_tts.content.decode('utf-8'))
         if 'async' in data_tts:
             async_url = data_tts['async']
-            try_count = 0
-            while True:
-                time.sleep(2)
-                response_audio = requests.get(async_url)
-                if response_audio.status_code == 200:
-                    file_content = response_audio.content
-                    with open(AUDIO_PATH, "wb") as f:
-                        f.write(file_content)
-                    break
-                else:
-                    try_count += 1
-                    if try_count > 1:
-                        raise Exception
+            time.sleep(2)
+            response_audio = requests.get(async_url)
+            if response_audio.status_code == 200:
+                file_content = response_audio.content
+                with open(AUDIO_PATH, "wb") as f:
+                    f.write(file_content)             
+            else:
+                raise Exception
             break
 
         else:
@@ -302,7 +297,8 @@ def read_comment_loop():
 
                     name = latest_comment['from']['name']
                     first_name = latest_comment['from']['first_name']
-                    gender = latest_comment['from']['gender']
+                    gender = latest_comment['from'].get('gender','')
+
 
                     picture_url = latest_comment["from"]["picture"]["data"]["url"]
                     message = message.strip().replace('\n',' ')
@@ -314,11 +310,11 @@ def read_comment_loop():
                     read_message = replace_emojis(read_message) 
                     read_message = add_greeting(read_message, first_name, gender)
 
-                    read_content = f"{name}. {read_message[:80]}" 
+                    read_content = f"{name}. {read_message}" 
 
                     show_name = f"{name}"
                     show_comment = cut_message
-                    if len(message) > 60: show_comment += ' ...'
+                    if len(message) > 80: show_comment += ' ...'
                     
                     with urllib.request.urlopen(picture_url) as response:
                         image_data = response.read()                                  
