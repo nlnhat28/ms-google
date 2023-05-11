@@ -13,7 +13,7 @@ from pilmoji import Pilmoji
 # Constant =======================================================================================================
 FONT_1 = ImageFont.truetype("fonts/UTM HelvetIns.ttf", size = 34) 
 FONT_2 = ImageFont.truetype("fonts/UTM HelvetIns.ttf", size = 30)
-START_COLOR = (0, 0, 0, 200) # Black with 50% transparency
+START_COLOR = (0, 0, 0, 225) # Black with 80% transparency
 END_COLOR = (0, 0, 0, 0) # Black with 0% transparency
 
 REPLACE_PATH = "replace_words.json"
@@ -25,11 +25,8 @@ AUDIO_PATH = "read.mp3"
 PICTURE_PATH = "picture.png"
 LOG_PATH = "log.txt"
 
-IMAGE_START_PATH = 'assets/image.png'
-NAME_START = 'Chị google'
+IMAGE_CHATBOT_PATH = 'assets/image.png'
 MESSAGE_START = 'Bắt đầu đọc bình luận'
-
-GREETING_CHATBOT = 'Chào'
 
 URL_FPT = 'https://api.fpt.ai/hmi/tts/v5'
 # Variable =======================================================================================================
@@ -38,7 +35,9 @@ dict_emojis = {}
 page_id = ''
 cookie = {}
 access_token = ''
-timesleep = 15
+timesleep = 14
+name_chatbot = 'Chị Google'
+greeting_chatbot = 'HI CHỊ GOOGLE'
 
 url_comment = ''
 params_comment = {}
@@ -60,7 +59,7 @@ def format_cookie(cookie_string):
 
 # Load file
 def load_file():
-    global dict_words, dict_emojis, config, page_id, cookie, access_token, time_sleep, api_fpt
+    global dict_words, dict_emojis, config, page_id, cookie, access_token, time_sleep, name_chatbot, greeting_chatbot, api_fpt
     with open(REPLACE_PATH, 'r', encoding='utf-8') as f:
         dict_words = json.load(f)
     with open(EMOJI_PATH, 'r', encoding='utf-8') as f:
@@ -69,7 +68,9 @@ def load_file():
         config = json.load(f)
         page_id = config.get('page_id')
         cookie = format_cookie(config.get('cookie'))
-        time_sleep = config.get('time_sleep') - 8
+        time_sleep = max(config.get('time_sleep') - 10, 0)
+        name_chatbot = config.get('name_chatbot')
+        greeting_chatbot = (f'Hi {name_chatbot}').upper()
         print(f'page_id: {page_id}')
     with open(APIFPT_PATH, 'r', encoding='utf-8') as f:
         api_fpt = json.load(f)
@@ -101,7 +102,7 @@ def get_video_id():
     url = f'https://graph.facebook.com/v16.0/{page_id}/live_videos?'
     params = {
         "access_token": access_token,
-        "fields": "creation_time,id, title",
+        "fields": "creation_time,id,title",
         "order": "reverse_chronological",
         "limit": 1
     }
@@ -119,7 +120,7 @@ def get_video_id():
         }
         print(f'live_video: {video_title}')
     else:
-        input("Not found video")
+        input("Not found video. Press any key to exit")
         sys.exit()
     
 # Trim message
@@ -137,7 +138,7 @@ def trim_message(message):
 def remove_char(message):
     origin_message = message
     try:
-        special_chars = "/\\*\"\'-#$^>|}{"
+        special_chars = "/\\*\"\'-#$^>|}{_"
         for char in special_chars:
             message = message.replace(char, '')
         return message
@@ -171,7 +172,7 @@ def replace_emojis(message):
 def add_greeting(message, first_name, gender):
     origin_message = message
     try:
-        if GREETING_CHATBOT.upper() in message.upper():
+        if greeting_chatbot in message.upper():
             if gender == 'male': gender = 'anh'
             elif gender == 'female': gender = 'chị'
             else: gender = ''
@@ -185,8 +186,7 @@ def text_to_audio(text):
     try:
         tts_fpt(text)
     except:
-        audio_gtts = gTTS(text, lang="vi", slow=False,)
-        audio_gtts.save(AUDIO_PATH)
+        gTTS(text, lang="vi", slow=False,).save(AUDIO_PATH)
     finally:
         pass
 
@@ -208,6 +208,7 @@ def tts_fpt(text):
         }
         response_tts = requests.request('POST', URL_FPT, data=payload.encode('utf-8'), headers=headers)
         data_tts = json.loads(response_tts.content.decode('utf-8'))
+
         if 'async' in data_tts:
             async_url = data_tts['async']
             time.sleep(2)
@@ -249,10 +250,10 @@ def create_image(image, text1, text2):
         text2_position = (image.width + 16, new_height // 2 )
 
         with Pilmoji(new_image) as pilmoji:
-            pilmoji.text(text2_position, text2, font=FONT_2, fill=(255, 255, 255, 255), emoji_position_offset=(0,8))
-            pilmoji.text(text1_position, text1, font=FONT_1, fill=(255, 215, 0, 255), emoji_position_offset=(0,6))
+            pilmoji.text(text2_position, text2, font=FONT_2, fill=(255, 255, 255, 255), emoji_position_offset=(0,10))
+            pilmoji.text(text1_position, text1, font=FONT_1, fill=(255, 255, 0, 255), emoji_position_offset=(0,10))
 
-        new_image = ImageOps.expand(new_image, border=(6, 0, 0, 0), fill=(255, 100, 0))
+        new_image = ImageOps.expand(new_image, border=(6, 0, 0, 0), fill=(0, 255, 255))
 
         new_image.save(PICTURE_PATH, format='PNG')
     except:
@@ -262,10 +263,10 @@ def create_image(image, text1, text2):
 def start():
     print('Started')
     try:
-        image = Image.open(IMAGE_START_PATH)
+        image = Image.open(IMAGE_CHATBOT_PATH)
     except:
         pass
-    name = NAME_START
+    name = name_chatbot
     comment = MESSAGE_START
     text_to_audio(f'{name}.{comment}')
     create_image(image, name, comment)
@@ -296,9 +297,8 @@ def read_comment_loop():
                     last_id = id
 
                     name = latest_comment['from']['name']
-                    first_name = latest_comment['from']['first_name']
+                    first_name = latest_comment['from'].get('first_name')
                     gender = latest_comment['from'].get('gender','')
-
 
                     picture_url = latest_comment["from"]["picture"]["data"]["url"]
                     message = message.strip().replace('\n',' ')
